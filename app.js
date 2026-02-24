@@ -38,15 +38,15 @@ let atendimentoAtual = null
 function abrirAtendimento(atendimento) {
   atendimentoAtual = atendimento
 
-  document.getElementById('drawer-nome').innerText = atendimento.nome
-  document.getElementById('drawer-telefone').innerText = atendimento.telefone
-  document.getElementById('drawer-status').value = atendimento.status
+  document.getElementById('drawer-nome').innerText = atendimento.nome || atendimento.telefone
+  document.getElementById('drawer-telefone').innerText = atendimento.telefone || ''
+  document.getElementById('drawer-status').value = atendimento.status || 'novo'
 
   document.getElementById('drawer').classList.remove('hidden')
 
-  carregarNotas()
+  // se você já tem notas, chama aqui
+  if (typeof carregarNotas === 'function') carregarNotas()
 }
-
 
 function fecharDrawer() {
   document.getElementById('drawer').classList.add('hidden')
@@ -120,21 +120,30 @@ function abrirWhatsApp() {
 
 const mensagensProntas = {
   saudacao: (a) =>
-    `Olá${a.nome ? ' ' + a.nome : ''}! 👋\n\nSou do atendimento e estou aqui para te ajudar 😊`,
+    `Olá${a?.nome ? ' ' + a.nome : ''}! 👋\n\nSou do atendimento e estou aqui para te ajudar 😊`,
 
   espera: () =>
-    `⏳ Estamos analisando sua solicitação.\nEm breve retornamos, tudo bem?`,
+    `⏳ Estou verificando sua solicitação.\nJá já te retorno, tudo bem?`,
 
   finalizacao: () =>
     `✅ Atendimento finalizado.\nQualquer coisa, é só chamar!`
 }
 
-function copiarMensagem(tipo) {
+async function copiarMensagem(tipo) {
   const gerar = mensagensProntas[tipo]
   if (!gerar) return
 
   const texto = gerar(atendimentoAtual)
 
-  navigator.clipboard.writeText(texto)
-  alert('Mensagem copiada!')
+  try {
+    await navigator.clipboard.writeText(texto)
+    alert('Mensagem copiada!')
+  } catch (e) {
+    // fallback (caso clipboard bloqueie)
+    prompt('Copie a mensagem:', texto)
+  }
+}
+function abrirWhatsAppDireto(telefone) {
+  const numero = String(telefone || '').replace(/\D/g, '')
+  window.open(`https://wa.me/55${numero}`, '_blank')
 }
