@@ -1,0 +1,140 @@
+async function carregarFila() {
+  const tbody = document.getElementById('fila-body')
+
+  try {
+    const atendimentos = await apiGet('/atendimentos')
+
+    if (!atendimentos.length) {
+      tbody.innerHTML = '<tr><td colspan="4">Nenhum atendimento</td></tr>'
+      return
+    }
+
+    tbody.innerHTML = ''
+
+    atendimentos.forEach(a => {
+      const tr = document.createElement('tr')
+
+      tr.style.cursor = 'pointer'
+      tr.onclick = () => abrirAtendimento(a)
+
+  tr.innerHTML = `
+  <td>${a.nome}</td>
+  <td>${a.telefone}</td>
+  <td>${a.status}</td>
+  <td>${a.ultima_interacao}</td>
+`
+      tbody.appendChild(tr)
+    })
+
+  } catch (err) {
+    tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar</td></tr>'
+  }
+}
+
+carregarFila()
+
+let atendimentoAtual = null
+
+function abrirAtendimento(atendimento) {
+  atendimentoAtual = atendimento
+
+  document.getElementById('drawer-nome').innerText = atendimento.nome
+  document.getElementById('drawer-telefone').innerText = atendimento.telefone
+  document.getElementById('drawer-status').value = atendimento.status
+
+  document.getElementById('drawer').classList.remove('hidden')
+
+  carregarNotas()
+}
+
+
+function fecharDrawer() {
+  document.getElementById('drawer').classList.add('hidden')
+}
+
+async function carregarNotas() {
+  const ul = document.getElementById('drawer-notas')
+  ul.innerHTML = 'Carregando...'
+
+  try {
+    const notas = await apiGet(
+      `/atendimentos/${atendimentoAtual.id}/notas`
+    )
+
+    ul.innerHTML = ''
+
+    if (!notas.length) {
+      ul.innerHTML = '<li>Nenhuma nota</li>'
+      return
+    }
+
+    notas.forEach(n => {
+      const li = document.createElement('li')
+      li.innerText = n.texto || n.conteudo || 'Sem texto'
+      ul.appendChild(li)
+    })
+
+  } catch (err) {
+    ul.innerHTML = '<li>Erro ao carregar notas</li>'
+  }
+}
+
+
+async function salvarNota() {
+  const texto = document.getElementById('nova-nota').value
+  if (!texto) return
+await fetch(`${API_URL}/atendimentos/${atendimentoAtual.id}/notas`, {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + TOKEN,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ texto })
+  })
+
+  document.getElementById('nova-nota').value = ''
+  carregarNotas()
+}
+
+async function alterarStatus() {
+  const status = document.getElementById('drawer-status').value
+
+  await fetch(`${API_URL}/atendimentos/${atendimentoAtual.id}/status`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: 'Bearer ' + TOKEN,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ status })
+  })
+
+  carregarFila()
+}
+
+function abrirWhatsApp() {
+  if (!atendimentoAtual?.telefone) return
+
+  const numero = atendimentoAtual.telefone.replace(/\D/g, '')
+  window.open(`https://wa.me/55${numero}`, '_blank')
+}
+
+const mensagensProntas = {
+  saudacao: (a) =>
+    `Olá${a.nome ? ' ' + a.nome : ''}! 👋\n\nSou do atendimento e estou aqui para te ajudar 😊`,
+
+  espera: () =>
+    `⏳ Estamos analisando sua solicitação.\nEm breve retornamos, tudo bem?`,
+
+  finalizacao: () =>
+    `✅ Atendimento finalizado.\nQualquer coisa, é só chamar!`
+}
+
+function copiarMensagem(tipo) {
+  const gerar = mensagensProntas[tipo]
+  if (!gerar) return
+
+  const texto = gerar(atendimentoAtual)
+
+  navigator.clipboard.writeText(texto)
+  alert('Mensagem copiada!')
+}

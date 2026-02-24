@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>FilaZap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>📲 FilaZap</h1>
+  </header>
+
+  <main>
+    <table id="fila">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Telefone</th>
+          <th>Status</th>
+          <th>Última interação</th>
+        </tr>
+      </thead>
+      <tbody id="fila-body">
+        <tr>
+          <td colspan="4">Carregando...</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+  <link rel="stylesheet" href="./style.css" />
+
+  <div id="drawer" class="drawer hidden">
+  <div class="drawer-header">
+    <strong id="drawer-nome"></strong>
+    <button onclick="fecharDrawer()">✖</button>
+  </div>
+
+  <div class="drawer-body">
+    <p><b>Telefone:</b> <span id="drawer-telefone"></span></p>
+    
+    <div class="acoes-atendimento">
+  <button onclick="abrirWhatsApp()">📱 Abrir WhatsApp</button>
+
+  <button onclick="copiarMensagem('saudacao')">
+    👋 Copiar saudação
+  </button>
+
+  <button onclick="copiarMensagem('espera')">
+    ⏳ Copiar mensagem de espera
+  </button>
+
+  <button onclick="copiarMensagem('finalizacao')">
+    ✅ Copiar finalização
+  </button>
+</div>
+
+    <label>Status</label>
+    <select id="drawer-status" onchange="alterarStatus()">
+      <option value="novo">Novo</option>
+      <option value="atendimento">Atendimento</option>
+      <option value="orcamento">Orçamento</option>
+      <option value="followup">Follow-up</option>
+      <option value="fechado">Fechado</option>
+      <option value="perdido">Perdido</option>
+    </select>
+    
+<hr />
+
+
+    <h4>Notas</h4>
+    <ul id="drawer-notas"></ul>
+
+    <textarea id="nova-nota" placeholder="Adicionar nota..."></textarea>
+    <button onclick="salvarNota()">Salvar nota</button>
+  </div>
+</div>
+
+</body>
+</html>
