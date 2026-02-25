@@ -1,3 +1,4 @@
+let atendimentosCache = []
 async function carregarFila() {
   const tbody = document.getElementById('fila-body')
 
@@ -17,6 +18,7 @@ async function carregarFila() {
       tr.style.cursor = 'pointer'
       tr.onclick = () => abrirAtendimento(a)
 
+
   tr.innerHTML = `
   <td>${a.nome}</td>
   <td>${a.telefone}</td>
@@ -29,6 +31,7 @@ async function carregarFila() {
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="4">Erro ao carregar</td></tr>'
   }
+  atendimentosCache = atendimentos
 }
 
 carregarFila()
@@ -181,7 +184,7 @@ async function criarAtendimento() {
     document.getElementById('novoTelefone').value = ''
 
     // atualiza lista
-    await carregarAtendimentos()
+    await carregarFila()
 
     // opcional: abrir drawer se a API retornar o atendimento criado
     // Ajuste conforme seu backend (id pode vir como res.atendimento_id ou res.id)
