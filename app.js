@@ -147,3 +147,60 @@ function abrirWhatsAppDireto(telefone) {
   const numero = String(telefone || '').replace(/\D/g, '')
   window.open(`https://wa.me/55${numero}`, '_blank')
 }
+function setMsgNovo(tipo, texto) {
+  const el = document.getElementById('novoAtendimentoMsg')
+  if (!el) return
+  el.className = 'msg ' + (tipo || '')
+  el.innerText = texto || ''
+}
+
+function normalizarTelefone(tel) {
+  return String(tel || '').replace(/\D/g, '')
+}
+
+async function criarAtendimento() {
+  const nome = (document.getElementById('novoNome').value || '').trim()
+  const telefoneRaw = (document.getElementById('novoTelefone').value || '').trim()
+  const telefone = normalizarTelefone(telefoneRaw)
+
+  if (!telefone || telefone.length < 10) {
+    setMsgNovo('err', 'Informe um telefone válido (com DDD).')
+    return
+  }
+
+  setMsgNovo('', 'Salvando...')
+
+  try {
+    // ✅ Seu backend já faz: cria contato + cria atendimento
+    const res = await apiPost('/contatos', { nome, telefone })
+
+    setMsgNovo('ok', 'Atendimento criado!')
+
+    // limpa campos
+    document.getElementById('novoNome').value = ''
+    document.getElementById('novoTelefone').value = ''
+
+    // atualiza lista
+    await carregarAtendimentos()
+
+    // opcional: abrir drawer se a API retornar o atendimento criado
+    // Ajuste conforme seu backend (id pode vir como res.atendimento_id ou res.id)
+    const novoId = res?.atendimento_id || res?.id
+    if (novoId) abrirAtendimentoPorId(novoId)
+
+  } catch (e) {
+    setMsgNovo('err', e.message || 'Erro ao criar atendimento')
+    console.error(e)
+  }
+}
+
+function abrirAtendimentoPorId(id) {
+  const a = atendimentosCache?.find(x => String(x.id) === String(id))
+  if (a) abrirAtendimento(a)
+}
+
+// binding do botão
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btnCriarAtendimento')
+  if (btn) btn.onclick = criarAtendimento
+})

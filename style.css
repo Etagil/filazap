@@ -96,3 +96,45 @@ td a {
   font-weight: 600;
 }
 td a:hover { text-decoration: underline; }
+.novo-atendimento {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 16px;
+}
+
+.novo-atendimento h3 {
+  margin: 0 0 10px 0;
+}
+
+.form-linha {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.form-linha input {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.form-linha button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #0ea5e9;
+  color: #fff;
+  font-weight: 700;
+}
+
+.msg {
+  margin-top: 10px;
+  font-size: 14px;
+}
+.msg.ok { color: #16a34a; }
+.msg.err { color: #dc2626; }
